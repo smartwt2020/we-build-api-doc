@@ -46,44 +46,46 @@ export default {
       }
     }
     for (const path in paths) {
-      for (const method in paths[path]) {
-        const obj = {}
-        const config = paths[path][method]
-        obj.urlPath = path
-        obj.method = method
-        obj.tag = config.tags || []
-        obj.summary = config.summary || ''
-        obj.produces = config.produces || []
-        obj.consumes = config.consumes || []
-        obj.body = null
-        obj.query = null
-        obj.path = null
-        obj.header = []
-        obj.res = {}
-        const parameters = config.parameters || []
-        for (const i in parameters) {
-          if (parameters[i].in === 'query') {
-            obj.query = obj.query === null ? {} : obj.query
-            obj.query[parameters[i].name] = parameters[i].type
-          } else if (parameters[i].in === 'path') {
-            obj.path = obj.path === null ? {} : obj.path
-            obj.path[parameters[i].name] = parameters[i].type
-          } else if (parameters[i].in === 'body') {
-            obj.body = obj.body === null ? {} : obj.body
-            obj.body = getObj(parameters[i].schema, data.definitions)
-          } else if (parameters[i].in === 'header') {
-            obj.header.push([parameters[i].name, parameters[i].type])
+      if (!path.includes('manage')) {
+        for (const method in paths[path]) {
+          const obj = {}
+          const config = paths[path][method]
+          obj.urlPath = path
+          obj.method = method
+          obj.tag = config.tags || []
+          obj.summary = config.summary || ''
+          obj.produces = config.produces || []
+          obj.consumes = config.consumes || []
+          obj.body = null
+          obj.query = null
+          obj.path = null
+          obj.header = []
+          obj.res = {}
+          const parameters = config.parameters || []
+          for (const i in parameters) {
+            if (parameters[i].in === 'query') {
+              obj.query = obj.query === null ? {} : obj.query
+              obj.query[parameters[i].name] = parameters[i].type
+            } else if (parameters[i].in === 'path') {
+              obj.path = obj.path === null ? {} : obj.path
+              obj.path[parameters[i].name] = parameters[i].type
+            } else if (parameters[i].in === 'body') {
+              obj.body = obj.body === null ? {} : obj.body
+              obj.body = getObj(parameters[i].schema, data.definitions)
+            } else if (parameters[i].in === 'header') {
+              obj.header.push([parameters[i].name, parameters[i].type])
+            }
           }
-        }
-        for (const resp in config.responses) {
-          if ('schema' in config.responses[resp]) {
-            const bodyPath = config.responses[resp].schema.$ref.split('/')[2]
-            obj.res[resp] = getObj(data.definitions[bodyPath], data.definitions)
+          for (const resp in config.responses) {
+            if ('schema' in config.responses[resp]) {
+              const bodyPath = config.responses[resp].schema.$ref.split('/')[2]
+              obj.res[resp] = getObj(data.definitions[bodyPath], data.definitions)
+            }
           }
-        }
-        res.api.push(obj)
-        for (const tag of obj.tag) {
-          res.api2[tag].api.push(obj)
+          res.api.push(obj)
+          for (const tag of obj.tag) {
+            res.api2[tag].api.push(obj)
+          }
         }
       }
     }
