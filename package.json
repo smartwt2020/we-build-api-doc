@@ -6,7 +6,8 @@
     "serve": "vue-cli-service serve --port 8050",
     "build": "vue-cli-service build",
     "test:unit": "vue-cli-service test:unit",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "host": "http-server ./ -p 9001"
   },
   "dependencies": {
     "asw-ele2": "^1.0.22",
@@ -38,6 +39,7 @@
     "eslint-plugin-vue": "^6.2.2",
     "sass": "^1.26.5",
     "sass-loader": "^8.0.2",
-    "vue-template-compiler": "^2.6.11"
+    "vue-template-compiler": "^2.6.11",
+    "http-server": "^0.12.3"
   }
 }
