@@ -1,6 +1,12 @@
 <template>
   <div class="container">
-    <h3>Saved Server</h3>
+    <div class="flex align-center justify-space-between">
+      <h3>Saved Server</h3>
+      <div class="flex">
+        <input type="file" class="m-1" @change="onFileChange"/>
+        <button class="asw-info-outline" @click="downloadConfig">Downlaod All Config</button>
+      </div>
+    </div>
     <div class="server" v-for="(server,i) in config" :key="server.id" >
       <div class="server-name">{{server.serverName}}</div>
       <div class="server-path">{{server.baseUrl + server.url}}</div>
@@ -54,6 +60,38 @@ export default {
     }
   },
   methods: {
+    onFileChange (e) {
+      const file = e.target.files
+      console.log(file)
+      if (file.length) {
+        if (file[0].type === 'application/json') {
+          const reader = new FileReader()
+          reader.onload = (e) => {
+            console.log(e.target.result)
+            try {
+              this.config = [...this.config, ...JSON.parse(e.target.result)]
+              localStore.saveAllServer(this.config)
+              this.config = localStore.getAllServer()
+            } catch {
+              console.log(e)
+              alert(e)
+            }
+          }
+          reader.readAsText(file[0], 'UTF-8')
+        } else {
+          alert(file[0].name + 'is Not Json file')
+        }
+      }
+    },
+    downloadConfig () {
+      var dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(this.config, null, 2))
+      var downloadAnchorNode = document.createElement('a')
+      downloadAnchorNode.setAttribute('href', dataStr)
+      downloadAnchorNode.setAttribute('download', 'server-config.json')
+      document.body.appendChild(downloadAnchorNode) // required for firefox
+      downloadAnchorNode.click()
+      downloadAnchorNode.remove()
+    },
     testConnection () {
       axios({
         baseURL: this.baseUrl,
@@ -68,6 +106,7 @@ export default {
       this.baseUrl = server.baseUrl
       this.docPath = server.url
       this.openModal = true
+      this.test = 0
     },
     save () {
       const i = this.index
